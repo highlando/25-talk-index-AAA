@@ -37,13 +37,15 @@ bibliography: rel-deg-bib.bib
 
 ---
 
-**it takes 4 integrations to see the effect of $u$ in $x_1$**
+::: {.r-frame}
+it takes 4 integrations to see the effect of $u$ in $x_1$
+:::
 
 ![](figures/federwagen.png)
 
 . . .
 
-   * relative degree $\delta=4$
+   * or $4$ differentiations of $x_1$ to see $u$: relative degree $\delta=4$
    * inverted system: choose a trajectory for $x_1$, find the $u$:
      * relative degree: $\delta=-4$
      * DAE index: $\eta=5=-(-4)+1$
@@ -66,7 +68,9 @@ $$G(s) = C(sI-A)^{-1}B + D$$
 
  * $G$ is a rational function, e.g. $$G(s)=P(s)/Q(s)$$ with $P$, $Q$ polynomial
 
- * **Relative degree**: $\delta = \operatorname{deg} Q - \operatorname{deg} P$
+::: {.r-frame}
+**Relative degree**: $\delta = \operatorname{deg} Q - \operatorname{deg} P$
+:::
 
 ## Relative Degree and Asymptotic Behavior
 
@@ -100,7 +104,11 @@ $$G(s) = C(sI-A)^{-1}B + D$$
 
 . . .
 
-However, most approaches rely on a-priori knowledge of the degree and high-frequency data.
+<br>
+
+::: {.r-frame}
+most approaches rely on a-priori knowledge of the degree and high-frequency data
+:::
 
 # Rational Interpolation with Prescribed Relative Degree
 
