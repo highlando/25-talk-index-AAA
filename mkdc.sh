@@ -1,6 +1,6 @@
 MDFILE=blitz.md
 
-pandoc $MDFILE -o slides.html \
+pandoc $MDFILE -o index.html \
     --citeproc \
     --mathjax  \
     --css titlepage.css --css my.css \
