@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="IV Gosea (MPI Magdeburg), J Heiland (TU Ilmenau), D Pradovera (KTH)">
+  <title>Barycentric rational approximation for learning the index of a dynamical system from limited data</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@^4/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@^4/dist/reveal.css">
+  <style>
+    .reveal .sourceCode {  /* see #7635 */
+      overflow: visible;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+      margin-bottom: 0em;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@^4/dist/theme/solarized.css" id="theme">
+  <link rel="stylesheet" href="titlepage.css"/>
+  <link rel="stylesheet" href="my.css"/>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" data-background-image="themepics/manebach.jpg">
+  <h1 class="title">Barycentric rational approximation for learning the
+index of a dynamical system from limited data</h1>
+  <p class="subtitle">GAMM annual meeting 2025 (S20), Poznan, April
+10th</p>
+  <p class="author">IV Gosea (MPI Magdeburg), <strong>J Heiland</strong>
+(TU Ilmenau), D Pradovera (KTH)</p>
+</section>
+
+<section>
+<section id="introduction" class="title-slide slide level1">
+<h1>Introduction</h1>
+
+</section>
+<section class="slide level2">
+
+<p><strong>A linear undamped 2-mass spring chain</strong></p>
+<p><img data-src="figures/federwagen.png" /></p>
+<div class="fragment">
+<ul>
+<li>the input force <span class="math inline">\(u\)</span> accelerates
+<span class="math inline">\(m_2\)</span>
+<ul>
+<li>1st integrator: <span class="math inline">\(m_2\)</span> gains
+velocity
+<ul>
+<li>2nd integrator: <span class="math inline">\(m_2\)</span> changes
+position</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li>the resulting spring force accelerates <span
+class="math inline">\(m_1\)</span>
+<ul>
+<li>3rd integrator: <span class="math inline">\(m_1\)</span> gains
+velocity
+<ul>
+<li>4th integrator: <span class="math inline">\(m_1\)</span> changes
+position</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section class="slide level2">
+
+<p><strong>it takes 4 integrations to see the effect of <span
+class="math inline">\(u\)</span> in <span
+class="math inline">\(x_1\)</span></strong></p>
+<p><img data-src="figures/federwagen.png" /></p>
+<div class="fragment">
+<ul>
+<li>relative degree <span class="math inline">\(\delta=4\)</span></li>
+<li>inverted system: choose a trajectory for <span
+class="math inline">\(x_1\)</span>, find the <span
+class="math inline">\(u\)</span>:
+<ul>
+<li>relative degree: <span class="math inline">\(\delta=-4\)</span></li>
+<li>DAE index: <span class="math inline">\(\eta=5=-(-4)+1\)</span></li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="relative-degree-of-a-siso-lti-system" class="slide level2">
+<h2>Relative Degree of a SISO LTI system</h2>
+<p><span class="math display">\[\begin{equation}
+\begin{split}
+\dot x = Ax + Bu\\
+y = Cx + Du
+\end{split}
+\end{equation}\]</span></p>
+<p>with transfer function</p>
+<p><span class="math display">\[G(s) = C(sI-A)^{-1}B + D\]</span></p>
+<div class="fragment">
+<ul>
+<li><p><span class="math inline">\(G\)</span> is a rational function,
+e.g. <span class="math display">\[G(s)=P(s)/Q(s)\]</span> with <span
+class="math inline">\(P\)</span>, <span class="math inline">\(Q\)</span>
+polynomial</p></li>
+<li><p><strong>Relative degree</strong>: <span
+class="math inline">\(\delta = \operatorname{deg} Q - \operatorname{deg}
+P\)</span></p></li>
+</ul>
+</div>
+</section>
+<section id="relative-degree-and-asymptotic-behavior"
+class="slide level2">
+<h2>Relative Degree and Asymptotic Behavior</h2>
+<ul>
+<li><p><span class="math inline">\(\delta&gt;0\)</span>: strictly
+proper: <span class="math inline">\(G(s) \to 0\)</span> for <span
+class="math inline">\(s\to \infty\)</span></p></li>
+<li><p><span class="math inline">\(\delta=0\)</span>: proper system:
+<span class="math inline">\(G(s) \to D\)</span> for <span
+class="math inline">\(s\to \infty\)</span></p></li>
+<li><p><span class="math inline">\(\delta &lt; 1\)</span>: DAE systems:
+<span class="math inline">\(G(s)\in \mathcal
+O(s^\delta)\)</span></p></li>
+</ul>
+</section></section>
+<section>
+<section id="the-relative-degreeindex-in-control-and-model-reduction"
+class="title-slide slide level1">
+<h1>The Relative Degree/Index in Control and Model Reduction</h1>
+
+</section>
+<section id="control" class="slide level2">
+<h2>Control</h2>
+<ul>
+<li><p>a higher relative degree makes (proportional) output feedback
+<span class="math display">\[u=k(y)\]</span> less immediate</p></li>
+<li><p>need for higher derivatives <span
+class="math display">\[u=k(y,\dot y, \dotsc,
+y^{(\delta)})\]</span></p></li>
+<li><p>see, e.g., the discussion for <em>funnel control</em> <span
+class="citation" data-cites="BerLR18">(Berger, Lê, and Reis
+2018)</span></p></li>
+</ul>
+</section>
+<section id="model-reduction" class="slide level2">
+<h2>Model reduction</h2>
+<ul>
+<li><p>the index/relative degree determines the asymptotic
+behavior</p></li>
+<li><p>should be included in the structure of the reduced order
+model</p>
+<ul>
+<li>see, e.g., projection-based model reduction for DAEs <span
+class="citation" data-cites="HeiSS08">(Heinkenschloss, Sorensen, and Sun
+2008)</span></li>
+<li>interpolation of nonproper transfer functions <span class="citation"
+data-cites="GosH24">(Gosea and JH 2024)</span></li>
+</ul></li>
+</ul>
+<div class="fragment">
+<p>However, most approaches rely on a-priori knowledge of the degree and
+high-frequency data.</p>
+</div>
+</section></section>
+<section>
+<section id="rational-interpolation-with-prescribed-relative-degree"
+class="title-slide slide level1">
+<h1>Rational Interpolation with Prescribed Relative Degree</h1>
+
+</section>
+<section class="slide level2">
+
+<ul>
+<li><p>approximate the transfer function <span
+class="math inline">\(G\)</span> through</p></li>
+<li><p>a rational interpolant <span class="math inline">\(\hat
+G\)</span> at given <span class="math inline">\(m+1\)</span> sample
+points <span class="math display">\[\hat G(s_i) = G(s_i), \quad
+i=0,1,\dotsc,m\]</span></p></li>
+<li><p>e.g. through the <strong>barycentric form</strong> <span
+class="math display">\[\hat G(s) = \sum_{i=0}^m \frac{G(s_i)w_i}{s -
+s_i} \Bigg/ \sum_{i=0}^m\frac{w_i}{s - s_i}\]</span></p></li>
+<li><p>for which the iterative <strong>AAA</strong> <span
+class="citation" data-cites="AntA86">(Antoulas and Anderson 1986)</span>
+algorithm determines optimal complexity <span
+class="math inline">\(m\)</span> and abscissae <span
+class="math inline">\(s_i\)</span> and weights <span
+class="math inline">\(w_i\)</span></p></li>
+</ul>
+</section>
+<section id="how-to-impose-a-relative-degree" class="slide level2">
+<h2>How to Impose a Relative Degree</h2>
+<ul>
+<li><p>generically, the barycentric form returns <span
+class="math inline">\(\hat G\)</span> with <span
+class="math inline">\(\delta_{\hat G}=0\)</span></p></li>
+<li><p>for, say, <span class="math inline">\(\delta_{\hat
+G}=-1\)</span>, one could set <span class="math inline">\(\hat G(s) =
+\hat G_0(s) + c_0 + c_1
+s\)</span> and identify <span class="math inline">\(c_0\)</span> and
+<span class="math inline">\(c_1\)</span> from (high-frequency)
+data</p></li>
+<li><p>our proposal: rather use constraints on the weights</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<div class="r-frame">
+<p><strong>Theorem</strong>: (<span class="citation"
+data-cites="BerM97">(Berrut and Mittelmann 1997)</span>, JH et
+al. ’25)</p>
+<p>Let <span class="math inline">\(\mu\)</span> and <span
+class="math inline">\(\nu\)</span> be non-negative integers <span
+class="math inline">\(\leq m\)</span> such that <span
+class="math display">\[\begin{equation}
+    \begin{cases}
+        \sum_{i=0}^mw_if_is_i^l=0\quad\text{for } l=0,1,\ldots,\mu-1,\\
+        \sum_{i=0}^mw_if_is_i^\mu\neq 0,
+    \end{cases}
+\end{equation}\]</span> where, for interpolation, <span
+class="math inline">\(f_i:=G(s_i)\)</span>, and <span
+class="math display">\[\begin{equation}
+    \begin{cases}
+        \sum_{i=0}^mw_is_i^l=0\quad\text{for } l=0,1,\ldots,\nu-1,\\
+        \sum_{i=0}^mw_is_i^\nu\neq 0.
+    \end{cases}
+\end{equation}\]</span> Then the barycentric form has relative degree
+<span class="math inline">\(\delta=\nu-\mu\)</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>Note</strong>: These are linear constraints on the
+weights.</p>
+</div>
+</section>
+<section id="practical-implications" class="slide level2">
+<h2>Practical Implications</h2>
+<ul>
+<li>linear constraints on the weights – effectively reducing the number
+of <em>free</em> model parameters</li>
+<li>same structure of the models and an <em>overly fair</em> method to
+compare different interpolants of possibly higher relative degree</li>
+</ul>
+<p><br></p>
+<div class="fragment">
+<div class="r-frame">
+<p><strong>We propose the following heuristics:</strong></p>
+<ol type="1">
+<li>for different <span class="math inline">\(\delta\)</span>, identify
+interpolants of smallest complexity <span
+class="math inline">\(m(\delta)\)</span></li>
+<li>define <span class="math inline">\(\delta^{* }\)</span> that
+achieves lowest complexity as <em>the</em> relative degree</li>
+</ol>
+</div>
+</div>
+</section></section>
+<section>
+<section id="numerical-results" class="title-slide slide level1">
+<h1>Numerical Results</h1>
+
+</section>
+<section id="the-procedure" class="slide level2">
+<h2>The Procedure</h2>
+<ul>
+<li><p>for different test cases</p>
+<ul>
+<li>define a reasonable training frequency range</li>
+<li>test different <span class="math inline">\(\delta\)</span></li>
+<li>identify relative degree (model has lowest complexity)</li>
+</ul></li>
+<li><p>tried AAA and <em>vector fitting</em> (VF)</p></li>
+<li><p>also on noisy data</p></li>
+</ul>
+</section>
+<section id="the-results" class="slide level2">
+<h2>The results</h2>
+<table>
+<thead>
+<tr>
+<th>Test case</th>
+<th><span class="math inline">\(\delta\)</span></th>
+<th>Training range</th>
+<th>AAA(w/noise)</th>
+<th>VF (w/noise)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fwd 2-mass</code></td>
+<td><span class="math inline">\(+4\)</span></td>
+<td><span class="math inline">\(10^{-2}\div 10^0\)</span></td>
+<td>✅(❌)</td>
+<td>✅(✅)</td>
+</tr>
+<tr>
+<td><code>bwd 2-mass</code></td>
+<td><span class="math inline">\(-4\)</span></td>
+<td><span class="math inline">\(10^{-2}\div 10^0\)</span></td>
+<td>✅(❌)</td>
+<td>✅(✅)</td>
+</tr>
+<tr>
+<td><code>fwd 3-mass</code></td>
+<td><span class="math inline">\(+6\)</span></td>
+<td><span class="math inline">\(10^{-2}\div 10^0\)</span></td>
+<td>✅(❌)</td>
+<td>✅(❌)</td>
+</tr>
+<tr>
+<td><code>bwd 3-mass</code></td>
+<td><span class="math inline">\(-6\)</span></td>
+<td><span class="math inline">\(10^{-2}\div 10^0\)</span></td>
+<td>❌(❌)</td>
+<td>❌(❌)</td>
+</tr>
+<tr>
+<td><code>Oseen flow</code></td>
+<td><span class="math inline">\(-1\)</span></td>
+<td><span class="math inline">\(10^{-2}\div 10^1\)</span></td>
+<td>✅(❌)</td>
+<td>✅(✅)</td>
+</tr>
+<tr>
+<td><code>eady</code> (SLICOT)</td>
+<td><span class="math inline">\(+1\)</span></td>
+<td><span class="math inline">\(10^{0}\div 10^3\)</span></td>
+<td>✅(❌)</td>
+<td>✅(✅)</td>
+</tr>
+<tr>
+<td><code>beam</code> (SLICOT)</td>
+<td><span class="math inline">\(+1\)</span></td>
+<td><span class="math inline">\(10^{-2}\div 10^2\)</span></td>
+<td>✅(✅)</td>
+<td>✅(✅)</td>
+</tr>
+<tr>
+<td><code>mna_1</code> (SLICOT)</td>
+<td><span class="math inline">\(-1\)</span></td>
+<td><span class="math inline">\(10^{11}\div 10^{12}\)</span></td>
+<td>❌(❌)</td>
+<td>❌(❌)</td>
+</tr>
+</tbody>
+</table>
+</section></section>
+<section>
+<section id="conclusion" class="title-slide slide level1">
+<h1>Conclusion</h1>
+<div class="fragment">
+<ul>
+<li>impose relative degrees <span class="math inline">\(\delta\)</span>
+on barycentric forms by linear constraints</li>
+<li>allows for direct comparison of models of different <span
+class="math inline">\(\delta\)</span></li>
+<li>applies to different interpolation methods</li>
+<li>works well across diverse test cases, even with noise</li>
+<li>preprint: <a
+href="https://arxiv.org/abs/2410.02000">arxiv:2410.02000</a>, code: <a
+href="https://doi.org/10.5281/zenodo.13838011">doi:10.5281/zenodo.13838011</a></li>
+</ul>
+<p><img data-src="figures/arxivlink.gif" /></p>
+</div>
+</section>
+<section id="references" class="slide level2 unnumbered">
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent"
+data-entry-spacing="0" role="list">
+<div id="ref-AntA86" class="csl-entry" role="listitem">
+Antoulas, A. C., and B. D. O. Anderson. 1986. <span>“On the Scalar
+Rational Interpolation Problem.”</span> <em>IMA J. Math. Control.
+Inf.</em> 3 (2-3): 61–88. <a
+href="https://doi.org/10.1093/imamci/3.2-3.61">https://doi.org/10.1093/imamci/3.2-3.61</a>.
+</div>
+<div id="ref-BerLR18" class="csl-entry" role="listitem">
+Berger, Thomas, Huy Hoàng Lê, and Timo Reis. 2018. <span>“Funnel Control
+for Nonlinear Systems with Known Strict Relative Degree.”</span>
+<em>Automatica</em> 87: 345–57. <a
+href="https://doi.org/10.1016/j.automatica.2017.10.017">https://doi.org/10.1016/j.automatica.2017.10.017</a>.
+</div>
+<div id="ref-BerM97" class="csl-entry" role="listitem">
+Berrut, J.-P., and H. D. Mittelmann. 1997. <span>“Matrices for the
+Direct Determination of the Barycentric Weights of Rational
+Interpolation.”</span> <em>Journal of Computational and Applied
+Mathematics</em> 78 (2): 355–70. <a
+href="https://doi.org/10.1016/S0377-0427(96)00163-X">https://doi.org/10.1016/S0377-0427(96)00163-X</a>.
+</div>
+<div id="ref-GosH24" class="csl-entry" role="listitem">
+Gosea, Ion Victor, and JH. 2024. <span>“Implicit and Explicit Matching
+of Non-Proper Transfer Functions in the <span>L</span>oewner
+Framework.”</span> In <em>2024 European Control Conference (ECC)</em>,
+3452–57. IEEE. <a
+href="https://doi.org/10.23919/ecc64448.2024.10590815">https://doi.org/10.23919/ecc64448.2024.10590815</a>.
+</div>
+<div id="ref-HeiSS08" class="csl-entry" role="listitem">
+Heinkenschloss, M., D. C. Sorensen, and K. Sun. 2008. <span>“Balanced
+Truncation Model Reduction for a Class of Descriptor Systems with
+Application to the <span>Oseen</span> Equations.”</span> <em>SIAM J.
+Sci. Comput.</em> 30 (2): 1038–63. <a
+href="https://doi.org/10.1137/070681910">https://doi.org/10.1137/070681910</a>.
+</div>
+</div>
+</section></section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@^4/dist/reveal.js"></script>
+
+  <!-- reveal.js plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@^4/plugin/notes/notes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@^4/plugin/search/search.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@^4/plugin/zoom/zoom.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@^4/plugin/math/math.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+        // Display controls in the bottom right corner
+        controls: true,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: true,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'bottom-right',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: false,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: true,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'default',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: true,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'slide',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'fade',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 15,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1280,
+
+        height: 880,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.05,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    </body>
+</html>
