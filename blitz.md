@@ -78,7 +78,7 @@ $$G(s) = C(sI-A)^{-1}B + D$$
 
    * $\delta=0$: proper system:  $G(s) \to D$ for $s\to \infty$
 
-   * $\delta < 1$: DAE systems: $G(s)\in \mathcal O(s^\delta)$
+   * $\delta < 1$: DAE systems: $G(s)\in \mathcal O(s^{|\delta|})$
 
 # The Relative Degree/Index in Control and Model Reduction
 
