@@ -221,6 +221,6 @@ Then the barycentric form has relative degree $\delta=\nu-\mu$.
  * works well across diverse test cases, even with noise
  * preprint: [arxiv:2410.02000](https://arxiv.org/abs/2410.02000), code: [doi:10.5281/zenodo.13838011](https://doi.org/10.5281/zenodo.13838011)
 
- ![](figures/arxivlink.gif) 
+ ![](figures/talklink.gif) 
 
 ## References
